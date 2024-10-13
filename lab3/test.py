@@ -1,6 +1,6 @@
 from random import randint
 
-N = int(150000)
+N = int(300000)
 with open('input.txt', 'w') as f:
     f.write(f'{N} \n')
     for i in range(N):

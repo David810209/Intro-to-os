@@ -52,7 +52,8 @@ void bubblesort(int l, int r) {
 }
 
 void merge(int begin, int mid, int end) {
-    static int tmp[MAX_N]; 
+    int size = end - begin;
+    int *tmp = new int[size];
     int l = begin, r = mid, idx = 0;
     
     while (l < mid && r < end) {
@@ -65,15 +66,17 @@ void merge(int begin, int mid, int end) {
         tmp[idx++] = arr[l++];
     while (r < end)
         tmp[idx++] = arr[r++];
-
+    
     for (int i = 0; i < idx; i++)
         arr[begin + i] = tmp[i];
+    
+    delete[] tmp;
 }
 
 void *solve(void *) {
-    while(1) {
+    while (1) {
         sem_wait(&mutex);
-        if(jobs.empty()) {
+        if (jobs.empty()) {
             sem_post(&mutex);
             sem_post(&finish);
             return nullptr;
@@ -82,7 +85,7 @@ void *solve(void *) {
         jobs.pop();
         sem_post(&mutex);
         
-        if(cur > 7) {
+        if (cur > 7) {
             bubblesort(bound[cur][0], bound[cur][1]);
         } else {
             merge(bound[cur][0], bound[cur * 2][1], bound[cur][1]);
@@ -90,7 +93,7 @@ void *solve(void *) {
         
         sem_wait(&mutex);
         done[cur] = true;
-        if((cur % 2 && done[cur - 1]) || (cur % 2 == 0 && done[cur + 1])){
+        if ((cur % 2 && done[cur - 1]) || (cur % 2 == 0 && done[cur + 1])) {
             jobs.push(cur >> 1);
         }
         sem_post(&mutex);
@@ -103,11 +106,12 @@ int main() {
     
     for(int T = 1; T <= 8; ++T) {
         read();
-        for(int i = 15;i >= 0; --i) {
+        for(int i = 15; i >= 0; --i) {
             done[i] = false;
             if(i > 7){
                 bound[i][0] = (i - 8) * (n / 8);
-                bound[i][1] = (i == 15) ? n : bound[i][0] + n / 8;
+                if(i == 15) bound[i][1] = n;
+                else bound[i][1] =  bound[i][0] + n / 8;
             }
             else{
                 bound[i][0] = bound[i * 2][0];
@@ -126,7 +130,8 @@ int main() {
         }
 
         for(int i = 0; i < T; ++i) {
-            pthread_create(&task[i], NULL, solve, NULL);        }
+            pthread_create(&task[i], NULL, solve, NULL);
+        }
         for(int i = 0; i < T; ++i) {
             sem_wait(&finish); 
         }
