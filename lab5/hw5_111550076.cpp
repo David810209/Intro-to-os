@@ -362,9 +362,9 @@ int main(int argc, char *argv[]) {
         accessType[sz] = line[0];
         addresses[sz] = stoul(line.substr(2), nullptr, 16) / PAGE_SIZE;
         sz++;
-        if (sz % 10000000 == 0) {
-            printf("已讀取 %d 筆數據\n", sz);
-        }
+        // if (sz % 10000000 == 0) {
+        //     printf("已讀取 %d 筆數據\n", sz);
+        // }
     }
 
 
@@ -374,14 +374,14 @@ int main(int argc, char *argv[]) {
     LRU_simulate(accessType, addresses, sz);
     gettimeofday(&end, 0);
     double elapsed = (end.tv_sec - start.tv_sec) + (end.tv_usec - start.tv_usec) / 1e6;
-    printf("Total elapsed time %.6f sec\n\n", elapsed);
+    printf("Elapsed time: %.6f sec\n\n", elapsed);
 
     cout << "CFLRU policy:\nFrame\tHit\t\tMiss\t\tPage fault ratio\tWrite back count\n";
     gettimeofday(&start, 0);
     CFLRU_simulate(accessType, addresses, sz);
     gettimeofday(&end, 0);
     elapsed = (end.tv_sec - start.tv_sec) + (end.tv_usec - start.tv_usec) / 1e6;
-    printf("Total elapsed time %.6f sec\n\n", elapsed);
+    printf("Elapsed time: %.6f sec\n\n", elapsed);
 
     free(accessType);
     free(addresses);

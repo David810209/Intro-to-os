@@ -101,52 +101,52 @@ void *solve(void *) {
 }
 
 int main() {
-    pthread_t task[8];
+    pthread_t task[2];
     struct timeval start, end;
     
-    for(int T = 1; T <= 8; ++T) {
-        read();
-        for(int i = 15; i >= 0; --i) {
-            done[i] = false;
-            if(i > 7){
-                bound[i][0] = (i - 8) * (n / 8);
-                if(i == 15) bound[i][1] = n;
-                else bound[i][1] =  bound[i][0] + n / 8;
-            }
-            else{
-                bound[i][0] = bound[i * 2][0];
-                bound[i][1] = bound[i * 2 + 1][1];
-            }
+    int T = 2;
+    read();
+    for(int i = 15; i >= 0; --i) {
+        done[i] = false;
+        if(i > 7){
+            bound[i][0] = (i - 8) * (n / 8);
+            if(i == 15) bound[i][1] = n;
+            else bound[i][1] =  bound[i][0] + n / 8;
         }
-
-        while(!jobs.empty()) jobs.pop();
-        
-        gettimeofday(&start, NULL);
-        sem_init(&finish, 0, 0);
-        sem_init(&mutex, 0, 1);
-
-        for(int i = 8; i <= 15; ++i) {
-            jobs.push(i);
+        else{
+            bound[i][0] = bound[i * 2][0];
+            bound[i][1] = bound[i * 2 + 1][1];
         }
-
-        for(int i = 0; i < T; ++i) {
-            pthread_create(&task[i], NULL, solve, NULL);
-        }
-        for(int i = 0; i < T; ++i) {
-            sem_wait(&finish); 
-        }
-
-        gettimeofday(&end, NULL);
-        output(T);
-        
-        for(int i = 0; i < T; ++i) {
-            pthread_join(task[i], NULL);
-        }
-        
-        sem_destroy(&mutex);
-        sem_destroy(&finish);
-        
-        double time_taken = (end.tv_sec - start.tv_sec) * 1e3 + (end.tv_usec - start.tv_usec) * 1e-3;
-        cout << "worker thread #" << T << ", elapsed " << fixed << setprecision(6) << time_taken << " ms\n";
     }
+
+    while(!jobs.empty()) jobs.pop();
+    
+    gettimeofday(&start, NULL);
+    sem_init(&finish, 0, 0);
+    sem_init(&mutex, 0, 1);
+
+    for(int i = 8; i <= 15; ++i) {
+        jobs.push(i);
+    }
+
+    for(int i = 0; i < T; ++i) {
+        pthread_create(&task[i], NULL, solve, NULL);
+    }
+    for(int i = 0; i < T; ++i) {
+        sem_wait(&finish); 
+    }
+
+    gettimeofday(&end, NULL);
+    output(T);
+    
+    for(int i = 0; i < T; ++i) {
+        pthread_join(task[i], NULL);
+    }
+    
+    sem_destroy(&mutex);
+    sem_destroy(&finish);
+    
+    double time_taken = (end.tv_sec - start.tv_sec) * 1e3 + (end.tv_usec - start.tv_usec) * 1e-3;
+    cout << "worker thread #" << T << ", elapsed " << fixed << setprecision(6) << time_taken << " ms\n";
+
 }
